@@ -8,8 +8,8 @@ interface SettingsPanelProps {
   disabled?: boolean;
 }
 
-const MIN_DURATION = 10000;  // 10 seconds
-const MAX_DURATION = 300000; // 5 minutes
+const MIN_DURATION = 3000;   // 3 seconds (API minimum)
+const MAX_DURATION = 300000; // 5 minutes (API maximum)
 
 export function SettingsPanel({
   duration,
@@ -41,7 +41,7 @@ export function SettingsPanel({
                      cursor-pointer accent-purple-600 disabled:opacity-50 disabled:cursor-not-allowed"
         />
         <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400">
-          <span>10초</span>
+          <span>3초</span>
           <span>5분</span>
         </div>
       </div>
