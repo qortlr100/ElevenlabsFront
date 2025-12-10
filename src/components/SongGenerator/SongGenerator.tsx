@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { PromptInput } from '../PromptInput';
 import { SettingsPanel } from '../SettingsPanel';
 import { AudioPlayer } from '../AudioPlayer';
@@ -26,16 +26,12 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     );
   };
 
-  const handleSongGenerated = useCallback(() => {
+  // Load audio when a new song is generated
+  useEffect(() => {
     if (songGenerator.currentSong) {
       audioPlayer.loadAudio(songGenerator.currentSong.audioUrl);
     }
-  }, [songGenerator.currentSong, audioPlayer]);
-
-  // Load audio when song is generated
-  if (songGenerator.currentSong && audioPlayer.duration === 0) {
-    handleSongGenerated();
-  }
+  }, [songGenerator.currentSong?.id]);
 
   const handleDownload = () => {
     if (!songGenerator.currentSong) return;
@@ -46,8 +42,8 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   };
 
   const handleHistorySelect = (item: Parameters<typeof songGenerator.loadFromHistory>[0]) => {
-    const song = songGenerator.loadFromHistory(item);
-    audioPlayer.loadAudio(song.audioUrl);
+    songGenerator.loadFromHistory(item);
+    // Audio loading is handled by the useEffect watching currentSong
   };
 
   return (
