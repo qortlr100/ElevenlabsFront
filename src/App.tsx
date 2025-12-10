@@ -6,7 +6,13 @@ const API_KEY_STORAGE_KEY = 'elevenlabs_api_key';
 
 function App() {
   const [apiKey, setApiKey] = useState(() => {
-    return localStorage.getItem(API_KEY_STORAGE_KEY) || '';
+    // First check localStorage, then fall back to environment variable
+    const storedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+    if (storedKey) {
+      return storedKey;
+    }
+    // Use environment variable if available (set during build via GitHub Secrets)
+    return import.meta.env.VITE_ELEVENLABS_API_KEY || '';
   });
 
   useEffect(() => {
