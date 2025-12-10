@@ -43,6 +43,10 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
 
   const handleHistorySelect = (item: Parameters<typeof songGenerator.loadFromHistory>[0]) => {
     songGenerator.loadFromHistory(item);
+    // Sync UI state with selected song's metadata
+    setPrompt(item.prompt);
+    setDuration(item.duration_ms);
+    setInstrumental(item.instrumental);
     // Audio loading is handled by the useEffect watching currentSong
   };
 
