@@ -18,8 +18,8 @@ class ElevenLabsService {
       },
       body: JSON.stringify({
         prompt: request.prompt,
-        duration_ms: request.duration_ms,
-        instrumental: request.instrumental ?? false,
+        music_length_ms: request.duration_ms,
+        force_instrumental: request.instrumental ?? false,
         output_format: request.output_format ?? 'mp3_44100_128',
       }),
     });
