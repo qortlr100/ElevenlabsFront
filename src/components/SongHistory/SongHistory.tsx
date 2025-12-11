@@ -6,9 +6,18 @@ interface SongHistoryProps {
   onSelect: (item: SongHistoryItem) => void;
   onDelete: (id: string) => void;
   onClear: () => void;
+  onAddToPlaylist?: (item: SongHistoryItem) => void;
+  playlistItemIds?: string[];
 }
 
-export function SongHistory({ items, onSelect, onDelete, onClear }: SongHistoryProps) {
+export function SongHistory({
+  items,
+  onSelect,
+  onDelete,
+  onClear,
+  onAddToPlaylist,
+  playlistItemIds = [],
+}: SongHistoryProps) {
   if (items.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -68,20 +77,48 @@ export function SongHistory({ items, onSelect, onDelete, onClear }: SongHistoryP
                 </div>
               </div>
             </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete(item.id);
-              }}
-              className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg
-                         hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400
-                         hover:text-red-500 transition-all"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-1">
+              {onAddToPlaylist && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToPlaylist(item);
+                  }}
+                  disabled={playlistItemIds.includes(item.id)}
+                  className={`opacity-0 group-hover:opacity-100 p-1.5 rounded-lg transition-all ${
+                    playlistItemIds.includes(item.id)
+                      ? 'text-purple-400 dark:text-purple-500 cursor-default opacity-100'
+                      : 'hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-400 hover:text-purple-500'
+                  }`}
+                  title={playlistItemIds.includes(item.id) ? '재생목록에 있음' : '재생목록에 추가'}
+                >
+                  {playlistItemIds.includes(item.id) ? (
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                            d="M12 4v16m8-8H4" />
+                    </svg>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(item.id);
+                }}
+                className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg
+                           hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-400
+                           hover:text-red-500 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </div>
         ))}
       </div>
