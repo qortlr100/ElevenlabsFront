@@ -1,8 +1,8 @@
-import type { PlaylistItem } from '../../types';
+import type { SongHistoryItem } from '../../types';
 import { formatDuration } from '../../utils/formatters';
 
 interface PlaylistProps {
-  items: PlaylistItem[];
+  items: SongHistoryItem[];
   currentIndex: number;
   isLoopEnabled: boolean;
   isPlaying: boolean;

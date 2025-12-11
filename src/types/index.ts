@@ -47,16 +47,8 @@ export interface AudioPlayerState {
   volume: number;
 }
 
-export interface PlaylistItem {
-  id: string;
-  prompt: string;
-  duration_ms: number;
-  instrumental: boolean;
-  audioData: string;
-}
-
 export interface PlaylistState {
-  items: PlaylistItem[];
+  itemIds: string[]; // Only store IDs, reference history for audio data
   currentIndex: number;
   isLoopEnabled: boolean;
 }
