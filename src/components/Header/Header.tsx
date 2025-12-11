@@ -3,9 +3,10 @@ import { useState } from 'react';
 interface HeaderProps {
   apiKey: string;
   onApiKeyChange: (key: string) => void;
+  hasDefaultKey?: boolean;
 }
 
-export function Header({ apiKey, onApiKeyChange }: HeaderProps) {
+export function Header({ apiKey, onApiKeyChange, hasDefaultKey = false }: HeaderProps) {
   const [showApiKey, setShowApiKey] = useState(false);
 
   return (
@@ -22,14 +23,16 @@ export function Header({ apiKey, onApiKeyChange }: HeaderProps) {
           </div>
           <div className="flex-1 max-w-md">
             <label className="block text-sm text-purple-200 mb-1">
-              API Key
+              API Key {hasDefaultKey && !apiKey && (
+                <span className="text-green-300">(기본 키 사용 중)</span>
+              )}
             </label>
             <div className="relative">
               <input
                 type={showApiKey ? 'text' : 'password'}
                 value={apiKey}
                 onChange={(e) => onApiKeyChange(e.target.value)}
-                placeholder="xi-..."
+                placeholder={hasDefaultKey ? "커스텀 키 입력 (선택사항)" : "xi-..."}
                 className="w-full px-3 py-2 pr-10 rounded-lg bg-white/10 border border-white/20
                            text-white placeholder-purple-300 focus:outline-none focus:ring-2
                            focus:ring-white/50 text-sm"
