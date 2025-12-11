@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PromptInput } from '../PromptInput';
 import { SettingsPanel } from '../SettingsPanel';
 import { AudioPlayer } from '../AudioPlayer';
@@ -24,15 +24,29 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   const playlist = usePlaylist();
   const songGenerator = useSongGenerator();
 
+  // Get playlist items from history by IDs
+  const playlistItems = useMemo(() => {
+    return playlist.itemIds
+      .map((id) => songGenerator.history.find((item) => item.id === id))
+      .filter((item): item is SongHistoryItem => item !== undefined);
+  }, [playlist.itemIds, songGenerator.history]);
+
+  // Get current playlist item
+  const getCurrentPlaylistItem = useCallback((): SongHistoryItem | null => {
+    const currentId = playlist.getCurrentId();
+    if (!currentId) return null;
+    return songGenerator.history.find((item) => item.id === currentId) || null;
+  }, [playlist, songGenerator.history]);
+
   // Handle track ended - play next in playlist
   const handleTrackEnded = useCallback(() => {
-    if (isPlaylistMode && playlist.items.length > 0) {
+    if (isPlaylistMode && playlistItems.length > 0) {
       const played = playlist.playNext();
       if (!played && !playlist.isLoopEnabled) {
         setIsPlaylistMode(false);
       }
     }
-  }, [isPlaylistMode, playlist]);
+  }, [isPlaylistMode, playlistItems.length, playlist]);
 
   const audioPlayer = useAudioPlayer({ onEnded: handleTrackEnded });
 
@@ -55,7 +69,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   // Load audio when playlist item changes
   useEffect(() => {
     if (isPlaylistMode) {
-      const currentItem = playlist.getCurrentItem();
+      const currentItem = getCurrentPlaylistItem();
       if (currentItem) {
         const audioUrl = `data:audio/mp3;base64,${currentItem.audioData}`;
         audioPlayer.loadAudio(audioUrl);
@@ -65,14 +79,14 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
         }, 100);
       }
     }
-  }, [isPlaylistMode, playlist.currentIndex, playlist.items.length]);
+  }, [isPlaylistMode, playlist.currentIndex, playlistItems.length, getCurrentPlaylistItem]);
 
   const handleDownload = () => {
     let audioUrl: string | undefined;
     let filename: string;
 
     if (isPlaylistMode) {
-      const currentItem = playlist.getCurrentItem();
+      const currentItem = getCurrentPlaylistItem();
       if (!currentItem) return;
       audioUrl = `data:audio/mp3;base64,${currentItem.audioData}`;
       filename = `song-${currentItem.id}.mp3`;
@@ -98,13 +112,17 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     // Audio loading is handled by the useEffect watching currentSong
   };
 
+  const handleAddToPlaylist = (item: SongHistoryItem) => {
+    playlist.addToPlaylist(item.id);
+  };
+
   const handlePlaylistSelect = (index: number) => {
     setIsPlaylistMode(true);
     playlist.setCurrentIndex(index);
   };
 
   const handlePlaylistPlayPause = () => {
-    if (playlist.items.length === 0) return;
+    if (playlistItems.length === 0) return;
 
     if (!isPlaylistMode) {
       setIsPlaylistMode(true);
@@ -115,7 +133,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   };
 
   const handlePlaylistPrevious = () => {
-    if (playlist.items.length === 0) return;
+    if (playlistItems.length === 0) return;
     if (!isPlaylistMode) {
       setIsPlaylistMode(true);
     }
@@ -123,7 +141,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   };
 
   const handlePlaylistNext = () => {
-    if (playlist.items.length === 0) return;
+    if (playlistItems.length === 0) return;
     if (!isPlaylistMode) {
       setIsPlaylistMode(true);
     }
@@ -132,14 +150,14 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
 
   const getCurrentTitle = () => {
     if (isPlaylistMode) {
-      const currentItem = playlist.getCurrentItem();
+      const currentItem = getCurrentPlaylistItem();
       return currentItem?.prompt || '';
     }
     return songGenerator.currentSong?.prompt || '';
   };
 
   const hasAudioToPlay = isPlaylistMode
-    ? playlist.items.length > 0
+    ? playlistItems.length > 0
     : !!songGenerator.currentSong;
 
   return (
@@ -228,7 +246,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
                     {isPlaylistMode && (
                       <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30
                                        text-purple-600 dark:text-purple-400">
-                        {playlist.currentIndex + 1} / {playlist.items.length}
+                        {playlist.currentIndex + 1} / {playlistItems.length}
                         {playlist.isLoopEnabled && ' (반복)'}
                       </span>
                     )}
@@ -276,9 +294,9 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
                 }`}
               >
                 재생목록
-                {playlist.items.length > 0 && (
+                {playlistItems.length > 0 && (
                   <span className="ml-1 text-xs text-purple-600 dark:text-purple-400">
-                    ({playlist.items.length})
+                    ({playlistItems.length})
                   </span>
                 )}
               </button>
@@ -290,12 +308,12 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
                 onSelect={handleHistorySelect}
                 onDelete={songGenerator.deleteFromHistory}
                 onClear={songGenerator.clearHistory}
-                onAddToPlaylist={playlist.addToPlaylist}
-                playlistItemIds={playlist.items.map((item) => item.id)}
+                onAddToPlaylist={handleAddToPlaylist}
+                playlistItemIds={playlist.itemIds}
               />
             ) : (
               <Playlist
-                items={playlist.items}
+                items={playlistItems}
                 currentIndex={playlist.currentIndex}
                 isLoopEnabled={playlist.isLoopEnabled}
                 isPlaying={isPlaylistMode && audioPlayer.isPlaying}

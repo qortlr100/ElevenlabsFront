@@ -1,10 +1,10 @@
 import { useState, useCallback } from 'react';
-import type { PlaylistItem, PlaylistState, SongHistoryItem } from '../types';
+import type { PlaylistState } from '../types';
 
 const PLAYLIST_STORAGE_KEY = 'elevenlabs_playlist';
 
 interface UsePlaylistReturn extends PlaylistState {
-  addToPlaylist: (item: SongHistoryItem) => void;
+  addToPlaylist: (id: string) => void;
   removeFromPlaylist: (id: string) => void;
   clearPlaylist: () => void;
   toggleLoop: () => void;
@@ -12,7 +12,7 @@ interface UsePlaylistReturn extends PlaylistState {
   playNext: () => boolean;
   playPrevious: () => boolean;
   reorderPlaylist: (fromIndex: number, toIndex: number) => void;
-  getCurrentItem: () => PlaylistItem | null;
+  getCurrentId: () => string | null;
 }
 
 function loadPlaylistFromStorage(): PlaylistState {
@@ -21,7 +21,7 @@ function loadPlaylistFromStorage(): PlaylistState {
     if (stored) {
       const parsed = JSON.parse(stored);
       return {
-        items: parsed.items || [],
+        itemIds: parsed.itemIds || [],
         currentIndex: parsed.currentIndex || 0,
         isLoopEnabled: parsed.isLoopEnabled || false,
       };
@@ -29,11 +29,15 @@ function loadPlaylistFromStorage(): PlaylistState {
   } catch {
     // Ignore parse errors
   }
-  return { items: [], currentIndex: 0, isLoopEnabled: false };
+  return { itemIds: [], currentIndex: 0, isLoopEnabled: false };
 }
 
 function savePlaylistToStorage(state: PlaylistState) {
-  localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(PLAYLIST_STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Ignore storage errors (quota exceeded, etc.)
+  }
 }
 
 export function usePlaylist(): UsePlaylistReturn {
@@ -44,22 +48,15 @@ export function usePlaylist(): UsePlaylistReturn {
     savePlaylistToStorage(newState);
   }, []);
 
-  const addToPlaylist = useCallback((item: SongHistoryItem) => {
+  const addToPlaylist = useCallback((id: string) => {
     setState((prev) => {
       // Check if already in playlist
-      if (prev.items.some((i) => i.id === item.id)) {
+      if (prev.itemIds.includes(id)) {
         return prev;
       }
-      const newItem: PlaylistItem = {
-        id: item.id,
-        prompt: item.prompt,
-        duration_ms: item.duration_ms,
-        instrumental: item.instrumental,
-        audioData: item.audioData,
-      };
       const newState = {
         ...prev,
-        items: [...prev.items, newItem],
+        itemIds: [...prev.itemIds, id],
       };
       savePlaylistToStorage(newState);
       return newState;
@@ -68,22 +65,22 @@ export function usePlaylist(): UsePlaylistReturn {
 
   const removeFromPlaylist = useCallback((id: string) => {
     setState((prev) => {
-      const index = prev.items.findIndex((i) => i.id === id);
+      const index = prev.itemIds.indexOf(id);
       if (index === -1) return prev;
 
-      const newItems = prev.items.filter((i) => i.id !== id);
+      const newItemIds = prev.itemIds.filter((itemId) => itemId !== id);
       let newIndex = prev.currentIndex;
 
       // Adjust currentIndex if needed
       if (index < prev.currentIndex) {
         newIndex = Math.max(0, prev.currentIndex - 1);
-      } else if (index === prev.currentIndex && newIndex >= newItems.length) {
-        newIndex = Math.max(0, newItems.length - 1);
+      } else if (index === prev.currentIndex && newIndex >= newItemIds.length) {
+        newIndex = Math.max(0, newItemIds.length - 1);
       }
 
       const newState = {
         ...prev,
-        items: newItems,
+        itemIds: newItemIds,
         currentIndex: newIndex,
       };
       savePlaylistToStorage(newState);
@@ -92,7 +89,7 @@ export function usePlaylist(): UsePlaylistReturn {
   }, []);
 
   const clearPlaylist = useCallback(() => {
-    const newState = { items: [], currentIndex: 0, isLoopEnabled: state.isLoopEnabled };
+    const newState = { itemIds: [], currentIndex: 0, isLoopEnabled: state.isLoopEnabled };
     updateState(newState);
   }, [state.isLoopEnabled, updateState]);
 
@@ -106,7 +103,7 @@ export function usePlaylist(): UsePlaylistReturn {
 
   const setCurrentIndex = useCallback((index: number) => {
     setState((prev) => {
-      if (index < 0 || index >= prev.items.length) return prev;
+      if (index < 0 || index >= prev.itemIds.length) return prev;
       const newState = { ...prev, currentIndex: index };
       savePlaylistToStorage(newState);
       return newState;
@@ -116,11 +113,11 @@ export function usePlaylist(): UsePlaylistReturn {
   const playNext = useCallback((): boolean => {
     let played = false;
     setState((prev) => {
-      if (prev.items.length === 0) return prev;
+      if (prev.itemIds.length === 0) return prev;
 
       let nextIndex = prev.currentIndex + 1;
 
-      if (nextIndex >= prev.items.length) {
+      if (nextIndex >= prev.itemIds.length) {
         if (prev.isLoopEnabled) {
           nextIndex = 0;
           played = true;
@@ -141,13 +138,13 @@ export function usePlaylist(): UsePlaylistReturn {
   const playPrevious = useCallback((): boolean => {
     let played = false;
     setState((prev) => {
-      if (prev.items.length === 0) return prev;
+      if (prev.itemIds.length === 0) return prev;
 
       let prevIndex = prev.currentIndex - 1;
 
       if (prevIndex < 0) {
         if (prev.isLoopEnabled) {
-          prevIndex = prev.items.length - 1;
+          prevIndex = prev.itemIds.length - 1;
           played = true;
         } else {
           return prev;
@@ -167,16 +164,16 @@ export function usePlaylist(): UsePlaylistReturn {
     setState((prev) => {
       if (
         fromIndex < 0 ||
-        fromIndex >= prev.items.length ||
+        fromIndex >= prev.itemIds.length ||
         toIndex < 0 ||
-        toIndex >= prev.items.length
+        toIndex >= prev.itemIds.length
       ) {
         return prev;
       }
 
-      const newItems = [...prev.items];
-      const [movedItem] = newItems.splice(fromIndex, 1);
-      newItems.splice(toIndex, 0, movedItem);
+      const newItemIds = [...prev.itemIds];
+      const [movedId] = newItemIds.splice(fromIndex, 1);
+      newItemIds.splice(toIndex, 0, movedId);
 
       // Adjust currentIndex
       let newIndex = prev.currentIndex;
@@ -188,18 +185,18 @@ export function usePlaylist(): UsePlaylistReturn {
         newIndex = prev.currentIndex + 1;
       }
 
-      const newState = { ...prev, items: newItems, currentIndex: newIndex };
+      const newState = { ...prev, itemIds: newItemIds, currentIndex: newIndex };
       savePlaylistToStorage(newState);
       return newState;
     });
   }, []);
 
-  const getCurrentItem = useCallback((): PlaylistItem | null => {
-    if (state.items.length === 0 || state.currentIndex >= state.items.length) {
+  const getCurrentId = useCallback((): string | null => {
+    if (state.itemIds.length === 0 || state.currentIndex >= state.itemIds.length) {
       return null;
     }
-    return state.items[state.currentIndex];
-  }, [state.items, state.currentIndex]);
+    return state.itemIds[state.currentIndex];
+  }, [state.itemIds, state.currentIndex]);
 
   return {
     ...state,
@@ -211,6 +208,6 @@ export function usePlaylist(): UsePlaylistReturn {
     playNext,
     playPrevious,
     reorderPlaylist,
-    getCurrentItem,
+    getCurrentId,
   };
 }
