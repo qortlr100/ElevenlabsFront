@@ -1,12 +1,25 @@
 import { formatDuration } from '../../utils/formatters';
+import type { OutputFormat } from '../../types';
 
 interface SettingsPanelProps {
   duration: number;
   onDurationChange: (duration: number) => void;
   instrumental: boolean;
   onInstrumentalChange: (instrumental: boolean) => void;
+  outputFormat: OutputFormat;
+  onOutputFormatChange: (format: OutputFormat) => void;
   disabled?: boolean;
 }
+
+const OUTPUT_FORMAT_OPTIONS: { value: OutputFormat; label: string }[] = [
+  { value: 'mp3_22050_32', label: 'MP3 22.05kHz 32kbps' },
+  { value: 'mp3_24000_48', label: 'MP3 24kHz 48kbps' },
+  { value: 'mp3_44100_32', label: 'MP3 44.1kHz 32kbps' },
+  { value: 'mp3_44100_64', label: 'MP3 44.1kHz 64kbps' },
+  { value: 'mp3_44100_96', label: 'MP3 44.1kHz 96kbps' },
+  { value: 'mp3_44100_128', label: 'MP3 44.1kHz 128kbps (기본)' },
+  { value: 'mp3_44100_192', label: 'MP3 44.1kHz 192kbps' },
+];
 
 const MIN_DURATION = 3000;   // 3 seconds (API minimum)
 const MAX_DURATION = 300000; // 5 minutes (API maximum)
@@ -16,6 +29,8 @@ export function SettingsPanel({
   onDurationChange,
   instrumental,
   onInstrumentalChange,
+  outputFormat,
+  onOutputFormatChange,
   disabled,
 }: SettingsPanelProps) {
   return (
@@ -68,6 +83,30 @@ export function SettingsPanel({
                         ${instrumental ? 'translate-x-6' : 'translate-x-1'}`}
           />
         </button>
+      </div>
+
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          출력 형식
+        </label>
+        <select
+          value={outputFormat}
+          onChange={(e) => onOutputFormatChange(e.target.value as OutputFormat)}
+          disabled={disabled}
+          className="w-full px-3 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600
+                     rounded-lg text-sm text-gray-900 dark:text-gray-100
+                     focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
+                     disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {OUTPUT_FORMAT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+        <p className="text-xs text-gray-500 dark:text-gray-400">
+          높은 비트레이트는 더 좋은 음질을 제공합니다
+        </p>
       </div>
     </div>
   );

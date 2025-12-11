@@ -5,6 +5,7 @@ import { AudioPlayer } from '../AudioPlayer';
 import { SongHistory } from '../SongHistory';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useSongGenerator } from '../../hooks/useSongGenerator';
+import type { OutputFormat } from '../../types';
 
 interface SongGeneratorProps {
   apiKey: string;
@@ -14,6 +15,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   const [prompt, setPrompt] = useState('');
   const [duration, setDuration] = useState(60000); // 1 minute default
   const [instrumental, setInstrumental] = useState(false);
+  const [outputFormat, setOutputFormat] = useState<OutputFormat>('mp3_44100_128');
 
   const audioPlayer = useAudioPlayer();
   const songGenerator = useSongGenerator();
@@ -21,7 +23,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   const handleGenerate = async () => {
     audioPlayer.reset();
     await songGenerator.generate(
-      { prompt, duration_ms: duration, instrumental },
+      { prompt, duration_ms: duration, instrumental, output_format: outputFormat },
       apiKey
     );
   };
@@ -66,6 +68,8 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
               onDurationChange={setDuration}
               instrumental={instrumental}
               onInstrumentalChange={setInstrumental}
+              outputFormat={outputFormat}
+              onOutputFormatChange={setOutputFormat}
               disabled={songGenerator.isGenerating}
             />
 
