@@ -45,3 +45,17 @@ export interface AudioPlayerState {
   duration: number;
   volume: number;
 }
+
+export interface PlaylistItem {
+  id: string;
+  prompt: string;
+  duration_ms: number;
+  instrumental: boolean;
+  audioData: string;
+}
+
+export interface PlaylistState {
+  items: PlaylistItem[];
+  currentIndex: number;
+  isLoopEnabled: boolean;
+}

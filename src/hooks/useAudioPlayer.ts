@@ -1,6 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import type { AudioPlayerState } from '../types';
 
+interface UseAudioPlayerOptions {
+  onEnded?: () => void;
+}
+
 interface UseAudioPlayerReturn extends AudioPlayerState {
   audioRef: React.RefObject<HTMLAudioElement | null>;
   play: () => void;
@@ -12,14 +16,20 @@ interface UseAudioPlayerReturn extends AudioPlayerState {
   reset: () => void;
 }
 
-export function useAudioPlayer(): UseAudioPlayerReturn {
+export function useAudioPlayer(options: UseAudioPlayerOptions = {}): UseAudioPlayerReturn {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const onEndedRef = useRef(options.onEnded);
   const [state, setState] = useState<AudioPlayerState>({
     isPlaying: false,
     currentTime: 0,
     duration: 0,
     volume: 1,
   });
+
+  // Keep onEnded callback up to date
+  useEffect(() => {
+    onEndedRef.current = options.onEnded;
+  }, [options.onEnded]);
 
   useEffect(() => {
     const audio = new Audio();
@@ -35,6 +45,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
 
     const handleEnded = () => {
       setState(prev => ({ ...prev, isPlaying: false, currentTime: 0 }));
+      onEndedRef.current?.();
     };
 
     const handlePlay = () => {
