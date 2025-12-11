@@ -76,7 +76,9 @@ export function useAudioPlayer(options: UseAudioPlayerOptions = {}): UseAudioPla
   }, []);
 
   const play = useCallback(() => {
-    audioRef.current?.play();
+    audioRef.current?.play().catch(() => {
+      // Ignore play errors (e.g., interrupted by new load)
+    });
   }, []);
 
   const pause = useCallback(() => {

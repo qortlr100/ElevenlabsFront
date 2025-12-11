@@ -66,20 +66,32 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     }
   }, [songGenerator.currentSong?.id, isPlaylistMode]);
 
+  // Get current playlist item ID for useEffect dependency
+  const currentPlaylistId = playlist.getCurrentId();
+
   // Load audio when playlist item changes
   useEffect(() => {
-    if (isPlaylistMode) {
-      const currentItem = getCurrentPlaylistItem();
+    if (isPlaylistMode && currentPlaylistId) {
+      const currentItem = songGenerator.history.find((item) => item.id === currentPlaylistId);
       if (currentItem) {
         const audioUrl = `data:audio/mp3;base64,${currentItem.audioData}`;
         audioPlayer.loadAudio(audioUrl);
         // Auto-play when switching tracks in playlist mode
-        setTimeout(() => {
-          audioPlayer.play();
-        }, 100);
+        // Use canplaythrough event to ensure audio is ready
+        const audio = audioPlayer.audioRef.current;
+        if (audio) {
+          const handleCanPlay = () => {
+            audioPlayer.play();
+            audio.removeEventListener('canplaythrough', handleCanPlay);
+          };
+          audio.addEventListener('canplaythrough', handleCanPlay);
+          return () => {
+            audio.removeEventListener('canplaythrough', handleCanPlay);
+          };
+        }
       }
     }
-  }, [isPlaylistMode, playlist.currentIndex, playlistItems.length, getCurrentPlaylistItem]);
+  }, [isPlaylistMode, currentPlaylistId]);
 
   const handleDownload = () => {
     let audioUrl: string | undefined;
