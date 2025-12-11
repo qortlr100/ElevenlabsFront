@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PromptInput } from '../PromptInput';
 import { SettingsPanel } from '../SettingsPanel';
-import { AudioPlayer } from '../AudioPlayer';
+import { IntegratedPlayer } from '../IntegratedPlayer';
 import { SongHistory } from '../SongHistory';
-import { Playlist } from '../Playlist';
 import { useAudioPlayer } from '../../hooks/useAudioPlayer';
 import { useSongGenerator } from '../../hooks/useSongGenerator';
 import { usePlaylist } from '../../hooks/usePlaylist';
@@ -19,7 +18,6 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
   const [instrumental, setInstrumental] = useState(false);
   const [outputFormat, setOutputFormat] = useState<OutputFormat>('mp3_44100_128');
   const [isPlaylistMode, setIsPlaylistMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'history' | 'playlist'>('history');
 
   const playlist = usePlaylist();
   const songGenerator = useSongGenerator();
@@ -173,9 +171,10 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     : !!songGenerator.currentSong;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
-      <div className="grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 space-y-6">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Left Column - Generation Panel */}
+        <div className="space-y-6">
           <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 space-y-6">
             <PromptInput
               value={prompt}
@@ -241,106 +240,48 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
             </button>
           </div>
 
-          {hasAudioToPlay && (
-            <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 flex items-center justify-center rounded-full
-                              bg-gradient-to-r from-purple-500 to-indigo-500 text-white">
-                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <h3 className="font-medium text-gray-900 dark:text-white truncate">
-                      {isPlaylistMode ? '재생목록' : '생성된 노래'}
-                    </h3>
-                    {isPlaylistMode && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/30
-                                       text-purple-600 dark:text-purple-400">
-                        {playlist.currentIndex + 1} / {playlistItems.length}
-                        {playlist.isLoopEnabled && ' (반복)'}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 truncate">
-                    {getCurrentTitle()}
-                  </p>
-                </div>
-              </div>
-
-              <AudioPlayer
-                isPlaying={audioPlayer.isPlaying}
-                isLooping={audioPlayer.isLooping}
-                currentTime={audioPlayer.currentTime}
-                duration={audioPlayer.duration}
-                volume={audioPlayer.volume}
-                onToggle={audioPlayer.toggle}
-                onSeek={audioPlayer.seek}
-                onVolumeChange={audioPlayer.setVolume}
-                onToggleLoop={audioPlayer.toggleLoop}
-                onDownload={handleDownload}
-              />
-            </div>
-          )}
+          {/* History Section */}
+          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
+            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+              히스토리
+            </h3>
+            <SongHistory
+              items={songGenerator.history}
+              onSelect={handleHistorySelect}
+              onDelete={songGenerator.deleteFromHistory}
+              onClear={songGenerator.clearHistory}
+              onAddToPlaylist={handleAddToPlaylist}
+              playlistItemIds={playlist.itemIds}
+            />
+          </div>
         </div>
 
-        <div className="md:col-span-1">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 sticky top-4">
-            {/* Tab navigation */}
-            <div className="flex gap-1 mb-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-lg">
-              <button
-                onClick={() => setActiveTab('history')}
-                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === 'history'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                히스토리
-              </button>
-              <button
-                onClick={() => setActiveTab('playlist')}
-                className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
-                  activeTab === 'playlist'
-                    ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-              >
-                재생목록
-                {playlistItems.length > 0 && (
-                  <span className="ml-1 text-xs text-purple-600 dark:text-purple-400">
-                    ({playlistItems.length})
-                  </span>
-                )}
-              </button>
-            </div>
-
-            {activeTab === 'history' ? (
-              <SongHistory
-                items={songGenerator.history}
-                onSelect={handleHistorySelect}
-                onDelete={songGenerator.deleteFromHistory}
-                onClear={songGenerator.clearHistory}
-                onAddToPlaylist={handleAddToPlaylist}
-                playlistItemIds={playlist.itemIds}
-              />
-            ) : (
-              <Playlist
-                items={playlistItems}
-                currentIndex={playlist.currentIndex}
-                isLoopEnabled={playlist.isLoopEnabled}
-                isPlaying={isPlaylistMode && audioPlayer.isPlaying}
-                onSelect={handlePlaylistSelect}
-                onRemove={playlist.removeFromPlaylist}
-                onClear={playlist.clearPlaylist}
-                onToggleLoop={playlist.toggleLoop}
-                onPlayPause={handlePlaylistPlayPause}
-                onPrevious={handlePlaylistPrevious}
-                onNext={handlePlaylistNext}
-              />
-            )}
-          </div>
+        {/* Right Column - Integrated Player */}
+        <div className="sticky top-4 h-fit">
+          <IntegratedPlayer
+            isPlaying={audioPlayer.isPlaying}
+            isLooping={audioPlayer.isLooping}
+            currentTime={audioPlayer.currentTime}
+            duration={audioPlayer.duration}
+            volume={audioPlayer.volume}
+            onToggle={hasAudioToPlay ? audioPlayer.toggle : handlePlaylistPlayPause}
+            onSeek={audioPlayer.seek}
+            onVolumeChange={audioPlayer.setVolume}
+            onToggleLoop={audioPlayer.toggleLoop}
+            onDownload={hasAudioToPlay ? handleDownload : undefined}
+            items={playlistItems}
+            currentIndex={playlist.currentIndex}
+            isLoopEnabled={playlist.isLoopEnabled}
+            isPlaylistMode={isPlaylistMode}
+            onSelect={handlePlaylistSelect}
+            onRemove={playlist.removeFromPlaylist}
+            onClear={playlist.clearPlaylist}
+            onTogglePlaylistLoop={playlist.toggleLoop}
+            onPrevious={handlePlaylistPrevious}
+            onNext={handlePlaylistNext}
+            currentTitle={getCurrentTitle()}
+            disabled={!hasAudioToPlay}
+          />
         </div>
       </div>
     </div>
