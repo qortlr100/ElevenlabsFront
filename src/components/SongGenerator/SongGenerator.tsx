@@ -142,12 +142,14 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
 
               <AudioPlayer
                 isPlaying={audioPlayer.isPlaying}
+                isLooping={audioPlayer.isLooping}
                 currentTime={audioPlayer.currentTime}
                 duration={audioPlayer.duration}
                 volume={audioPlayer.volume}
                 onToggle={audioPlayer.toggle}
                 onSeek={audioPlayer.seek}
                 onVolumeChange={audioPlayer.setVolume}
+                onToggleLoop={audioPlayer.toggleLoop}
                 onDownload={handleDownload}
               />
             </div>

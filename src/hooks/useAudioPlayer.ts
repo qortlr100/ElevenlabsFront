@@ -8,6 +8,7 @@ interface UseAudioPlayerReturn extends AudioPlayerState {
   toggle: () => void;
   seek: (time: number) => void;
   setVolume: (volume: number) => void;
+  toggleLoop: () => void;
   loadAudio: (url: string) => void;
   reset: () => void;
 }
@@ -16,6 +17,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [state, setState] = useState<AudioPlayerState>({
     isPlaying: false,
+    isLooping: false,
     currentTime: 0,
     duration: 0,
     volume: 1,
@@ -92,6 +94,14 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     }
   }, []);
 
+  const toggleLoop = useCallback(() => {
+    if (audioRef.current) {
+      const newLoopState = !audioRef.current.loop;
+      audioRef.current.loop = newLoopState;
+      setState(prev => ({ ...prev, isLooping: newLoopState }));
+    }
+  }, []);
+
   const loadAudio = useCallback((url: string) => {
     if (audioRef.current) {
       audioRef.current.src = url;
@@ -107,12 +117,13 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
       audioRef.current.src = '';
       setState({
         isPlaying: false,
+        isLooping: state.isLooping,
         currentTime: 0,
         duration: 0,
         volume: state.volume,
       });
     }
-  }, [state.volume]);
+  }, [state.volume, state.isLooping]);
 
   return {
     ...state,
@@ -122,6 +133,7 @@ export function useAudioPlayer(): UseAudioPlayerReturn {
     toggle,
     seek,
     setVolume,
+    toggleLoop,
     loadAudio,
     reset,
   };

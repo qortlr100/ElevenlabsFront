@@ -41,6 +41,7 @@ export interface GenerationState {
 
 export interface AudioPlayerState {
   isPlaying: boolean;
+  isLooping: boolean;
   currentTime: number;
   duration: number;
   volume: number;
