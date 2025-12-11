@@ -49,21 +49,21 @@ export function SongHistory({
         {items.map((item) => (
           <div
             key={item.id}
-            className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50
+            className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800/50
                        rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors group"
           >
             <button
               onClick={() => onSelect(item)}
-              className="flex-1 flex items-center gap-3 text-left min-h-[48px]"
+              className="flex-1 flex items-center gap-2 text-left min-w-0 overflow-hidden"
             >
-              <div className="w-10 h-10 flex items-center justify-center rounded-full
+              <div className="w-8 h-8 flex items-center justify-center rounded-full
                             bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 flex-shrink-0">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm text-gray-900 dark:text-white truncate">
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <p className="text-sm text-gray-900 dark:text-white truncate" title={item.prompt}>
                   {item.prompt}
                 </p>
                 <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mt-0.5">
@@ -77,7 +77,7 @@ export function SongHistory({
                 </div>
               </div>
             </button>
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1 flex-shrink-0">
               {onAddToPlaylist && (
                 <button
                   onClick={(e) => {
@@ -85,7 +85,7 @@ export function SongHistory({
                     onAddToPlaylist(item);
                   }}
                   disabled={playlistItemIds.includes(item.id)}
-                  className={`p-2.5 rounded-lg transition-all ${
+                  className={`p-2 rounded-lg transition-all ${
                     playlistItemIds.includes(item.id)
                       ? 'text-purple-400 dark:text-purple-500 cursor-default bg-purple-50 dark:bg-purple-900/20'
                       : 'hover:bg-purple-100 dark:hover:bg-purple-900/30 text-gray-400 hover:text-purple-500 md:opacity-60 md:group-hover:opacity-100'
@@ -93,11 +93,11 @@ export function SongHistory({
                   title={playlistItemIds.includes(item.id) ? '재생목록에 있음' : '재생목록에 추가'}
                 >
                   {playlistItemIds.includes(item.id) ? (
-                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
                     </svg>
                   ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                             d="M12 4v16m8-8H4" />
                     </svg>
@@ -109,12 +109,12 @@ export function SongHistory({
                   e.stopPropagation();
                   onDelete(item.id);
                 }}
-                className="p-2.5 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30
+                className="p-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30
                            text-gray-400 hover:text-red-500 transition-all
                            md:opacity-60 md:group-hover:opacity-100"
                 title="삭제"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                         d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
