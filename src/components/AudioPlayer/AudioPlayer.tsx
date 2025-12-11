@@ -2,24 +2,28 @@ import { formatTime } from '../../utils/formatters';
 
 interface AudioPlayerProps {
   isPlaying: boolean;
+  isLooping: boolean;
   currentTime: number;
   duration: number;
   volume: number;
   onToggle: () => void;
   onSeek: (time: number) => void;
   onVolumeChange: (volume: number) => void;
+  onToggleLoop: () => void;
   onDownload?: () => void;
   disabled?: boolean;
 }
 
 export function AudioPlayer({
   isPlaying,
+  isLooping,
   currentTime,
   duration,
   volume,
   onToggle,
   onSeek,
   onVolumeChange,
+  onToggleLoop,
   onDownload,
   disabled,
 }: AudioPlayerProps) {
@@ -74,20 +78,36 @@ export function AudioPlayer({
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
-          </svg>
-          <input
-            type="range"
-            min={0}
-            max={1}
-            step={0.01}
-            value={volume}
-            onChange={(e) => onVolumeChange(Number(e.target.value))}
-            className="w-20 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none
-                       cursor-pointer accent-purple-600"
-          />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z" />
+            </svg>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.01}
+              value={volume}
+              onChange={(e) => onVolumeChange(Number(e.target.value))}
+              className="w-20 h-1.5 bg-gray-300 dark:bg-gray-600 rounded-lg appearance-none
+                         cursor-pointer accent-purple-600"
+            />
+          </div>
+
+          <button
+            onClick={onToggleLoop}
+            className={`p-2 rounded-lg transition-colors ${
+              isLooping
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-gray-300 dark:hover:bg-gray-600'
+            }`}
+            title={isLooping ? '반복 재생 끄기' : '반복 재생 켜기'}
+          >
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z" />
+            </svg>
+          </button>
         </div>
 
         {onDownload && (
