@@ -25,23 +25,11 @@ function App() {
   }, [customApiKey]);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="min-h-screen bg-[#121212] text-white flex flex-col">
       <Header apiKey={customApiKey} onApiKeyChange={setCustomApiKey} hasDefaultKey={!!DEFAULT_API_KEY} />
-      <main>
+      <main className="flex-1 pb-24">
         <SongGenerator apiKey={effectiveApiKey} />
       </main>
-      <footer className="text-center py-6 text-sm text-gray-500 dark:text-gray-400">
-        Powered by{' '}
-        <a
-          href="https://elevenlabs.io"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-purple-600 hover:text-purple-700 dark:text-purple-400"
-        >
-          ElevenLabs
-        </a>{' '}
-        Music API
-      </footer>
     </div>
   );
 }
