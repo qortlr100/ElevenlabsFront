@@ -16,39 +16,38 @@ const EXAMPLE_PROMPTS = [
 export function PromptInput({ value, onChange, disabled }: PromptInputProps) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className="block text-sm font-medium text-white">
         노래 설명
       </label>
       <textarea
         value={value}
         onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
-        placeholder="만들고 싶은 노래를 설명해주세요... (예: A cheerful pop song about summer vacation with catchy melody)"
-        className="w-full h-32 px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600
-                   bg-white dark:bg-gray-800 text-gray-900 dark:text-white
-                   placeholder-gray-400 dark:placeholder-gray-500
-                   focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent
-                   resize-none disabled:opacity-50 disabled:cursor-not-allowed"
+        placeholder="만들고 싶은 노래를 설명해주세요... (예: A cheerful pop song about summer vacation)"
+        className="w-full h-28 px-4 py-3 rounded-lg bg-[#282828] border border-transparent
+                   text-white text-sm placeholder-[#727272]
+                   focus:outline-none focus:border-[#1DB954] focus:ring-1 focus:ring-[#1DB954]
+                   resize-none disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         maxLength={4100}
       />
-      <div className="flex justify-between items-center text-sm">
-        <span className="text-gray-500 dark:text-gray-400">
-          {value.length} / 4100자
+      <div className="flex justify-between items-center text-xs">
+        <span className="text-[#b3b3b3]">
+          {value.length} / 4100
         </span>
       </div>
 
       <div className="space-y-2">
-        <span className="text-sm text-gray-600 dark:text-gray-400">예시:</span>
+        <span className="text-xs text-[#b3b3b3]">빠른 선택:</span>
         <div className="flex flex-wrap gap-2">
           {EXAMPLE_PROMPTS.map((example) => (
             <button
               key={example.label}
               onClick={() => onChange(example.prompt)}
               disabled={disabled}
-              className="px-3 py-1.5 text-sm rounded-full bg-purple-100 dark:bg-purple-900/30
-                         text-purple-700 dark:text-purple-300 hover:bg-purple-200
-                         dark:hover:bg-purple-900/50 transition-colors
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-3 py-1.5 text-xs rounded-full bg-[#282828] text-[#b3b3b3]
+                         hover:bg-[#3e3e3e] hover:text-white transition-colors
+                         disabled:opacity-50 disabled:cursor-not-allowed
+                         border border-transparent hover:border-[#535353]"
             >
               {example.label}
             </button>

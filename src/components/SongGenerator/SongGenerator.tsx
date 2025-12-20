@@ -171,119 +171,143 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     : !!songGenerator.currentSong;
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-8">
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Left Column - Generation Panel */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6 space-y-6">
-            <PromptInput
-              value={prompt}
-              onChange={setPrompt}
-              disabled={songGenerator.isGenerating}
-            />
-
-            <SettingsPanel
-              duration={duration}
-              onDurationChange={setDuration}
-              instrumental={instrumental}
-              onInstrumentalChange={setInstrumental}
-              outputFormat={outputFormat}
-              onOutputFormatChange={setOutputFormat}
-              disabled={songGenerator.isGenerating}
-            />
-
-            {songGenerator.error && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20
-                              border border-red-200 dark:border-red-800 rounded-lg">
-                <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                </svg>
-                <p className="text-sm text-red-600 dark:text-red-400">{songGenerator.error}</p>
-                <button
-                  onClick={songGenerator.clearError}
-                  className="ml-auto text-red-500 hover:text-red-600"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+    <>
+      <div className="max-w-5xl mx-auto px-4 py-6">
+        {/* Main Content Grid */}
+        <div className="grid lg:grid-cols-5 gap-6">
+          {/* Left Section - Create */}
+          <div className="lg:col-span-2 space-y-4">
+            {/* Generation Card */}
+            <div className="bg-[#181818] rounded-lg p-5 space-y-5">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1DB954] to-[#1ed760] flex items-center justify-center">
+                  <svg className="w-5 h-5 text-black" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
                   </svg>
-                </button>
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold text-white">노래 만들기</h2>
+                  <p className="text-xs text-[#b3b3b3]">AI로 나만의 음악을 생성하세요</p>
+                </div>
               </div>
-            )}
 
-            <button
-              onClick={handleGenerate}
-              disabled={songGenerator.isGenerating || !apiKey || !prompt.trim()}
-              className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600
-                         hover:from-purple-700 hover:to-indigo-700 text-white font-semibold
-                         transition-all transform hover:scale-[1.02] active:scale-[0.98]
-                         disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-                         flex items-center justify-center gap-2"
-            >
-              {songGenerator.isGenerating ? (
-                <>
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor"
-                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              <PromptInput
+                value={prompt}
+                onChange={setPrompt}
+                disabled={songGenerator.isGenerating}
+              />
+
+              <SettingsPanel
+                duration={duration}
+                onDurationChange={setDuration}
+                instrumental={instrumental}
+                onInstrumentalChange={setInstrumental}
+                outputFormat={outputFormat}
+                onOutputFormatChange={setOutputFormat}
+                disabled={songGenerator.isGenerating}
+              />
+
+              {songGenerator.error && (
+                <div className="flex items-center gap-2 p-3 bg-[#e91429]/10 border border-[#e91429]/20 rounded-lg">
+                  <svg className="w-5 h-5 text-[#e91429] flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                   </svg>
-                  생성 중... (1-2분 소요)
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2z" />
-                  </svg>
-                  노래 생성하기
-                </>
+                  <p className="text-sm text-[#e91429] flex-1">{songGenerator.error}</p>
+                  <button
+                    onClick={songGenerator.clearError}
+                    className="text-[#e91429] hover:text-[#ff4d6d] p-1"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               )}
-            </button>
+
+              <button
+                onClick={handleGenerate}
+                disabled={songGenerator.isGenerating || !apiKey || !prompt.trim()}
+                className="w-full py-3 px-6 rounded-full bg-[#1DB954] hover:bg-[#1ed760] hover:scale-[1.02]
+                           text-black font-bold text-sm tracking-wide transition-all
+                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100
+                           flex items-center justify-center gap-2"
+              >
+                {songGenerator.isGenerating ? (
+                  <>
+                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                    </svg>
+                    생성 중... (1-2분 소요)
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
+                    </svg>
+                    노래 생성하기
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
-          {/* History Section */}
-          <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-lg p-6">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
-              히스토리
-            </h3>
-            <SongHistory
-              items={songGenerator.history}
-              onSelect={handleHistorySelect}
-              onDelete={songGenerator.deleteFromHistory}
-              onClear={songGenerator.clearHistory}
-              onAddToPlaylist={handleAddToPlaylist}
-              playlistItemIds={playlist.itemIds}
-            />
-          </div>
-        </div>
+          {/* Right Section - History */}
+          <div className="lg:col-span-3">
+            <div className="bg-[#181818] rounded-lg p-5">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#535353] to-[#333333] flex items-center justify-center">
+                    <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-white">최근 생성</h2>
+                    <p className="text-xs text-[#b3b3b3]">생성한 음악을 다시 들어보세요</p>
+                  </div>
+                </div>
+              </div>
 
-        {/* Right Column - Integrated Player */}
-        <div className="sticky top-4 h-fit">
-          <IntegratedPlayer
-            isPlaying={audioPlayer.isPlaying}
-            isLooping={audioPlayer.isLooping}
-            currentTime={audioPlayer.currentTime}
-            duration={audioPlayer.duration}
-            volume={audioPlayer.volume}
-            onToggle={hasAudioToPlay ? audioPlayer.toggle : handlePlaylistPlayPause}
-            onSeek={audioPlayer.seek}
-            onVolumeChange={audioPlayer.setVolume}
-            onToggleLoop={audioPlayer.toggleLoop}
-            onDownload={hasAudioToPlay ? handleDownload : undefined}
-            items={playlistItems}
-            currentIndex={playlist.currentIndex}
-            isLoopEnabled={playlist.isLoopEnabled}
-            isPlaylistMode={isPlaylistMode}
-            onSelect={handlePlaylistSelect}
-            onRemove={playlist.removeFromPlaylist}
-            onClear={playlist.clearPlaylist}
-            onTogglePlaylistLoop={playlist.toggleLoop}
-            onPrevious={handlePlaylistPrevious}
-            onNext={handlePlaylistNext}
-            currentTitle={getCurrentTitle()}
-            disabled={!hasAudioToPlay}
-          />
+              <SongHistory
+                items={songGenerator.history}
+                onSelect={handleHistorySelect}
+                onDelete={songGenerator.deleteFromHistory}
+                onClear={songGenerator.clearHistory}
+                onAddToPlaylist={handleAddToPlaylist}
+                playlistItemIds={playlist.itemIds}
+              />
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Fixed Bottom Player */}
+      <IntegratedPlayer
+        isPlaying={audioPlayer.isPlaying}
+        isLooping={audioPlayer.isLooping}
+        currentTime={audioPlayer.currentTime}
+        duration={audioPlayer.duration}
+        volume={audioPlayer.volume}
+        onToggle={hasAudioToPlay ? audioPlayer.toggle : handlePlaylistPlayPause}
+        onSeek={audioPlayer.seek}
+        onVolumeChange={audioPlayer.setVolume}
+        onToggleLoop={audioPlayer.toggleLoop}
+        onDownload={hasAudioToPlay ? handleDownload : undefined}
+        items={playlistItems}
+        currentIndex={playlist.currentIndex}
+        isLoopEnabled={playlist.isLoopEnabled}
+        isPlaylistMode={isPlaylistMode}
+        onSelect={handlePlaylistSelect}
+        onRemove={playlist.removeFromPlaylist}
+        onClear={playlist.clearPlaylist}
+        onTogglePlaylistLoop={playlist.toggleLoop}
+        onPrevious={handlePlaylistPrevious}
+        onNext={handlePlaylistNext}
+        currentTitle={getCurrentTitle()}
+        disabled={!hasAudioToPlay}
+      />
+    </>
   );
 }
