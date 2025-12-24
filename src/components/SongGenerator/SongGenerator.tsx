@@ -122,6 +122,15 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
     // Audio loading is handled by the useEffect watching currentSong
   };
 
+  const handleDownloadFromHistory = (item: SongHistoryItem) => {
+    const audioUrl = `data:audio/mp3;base64,${item.audioData}`;
+    const filename = `${item.prompt.slice(0, 30).replace(/[^a-zA-Z0-9가-힣\s]/g, '')}.mp3`;
+    const link = document.createElement('a');
+    link.href = audioUrl;
+    link.download = filename;
+    link.click();
+  };
+
   const handleAddToPlaylist = (item: SongHistoryItem) => {
     playlist.addToPlaylist(item.id);
   };
@@ -276,6 +285,7 @@ export function SongGenerator({ apiKey }: SongGeneratorProps) {
                 onDelete={songGenerator.deleteFromHistory}
                 onClear={songGenerator.clearHistory}
                 onAddToPlaylist={handleAddToPlaylist}
+                onDownload={handleDownloadFromHistory}
                 playlistItemIds={playlist.itemIds}
               />
             </div>

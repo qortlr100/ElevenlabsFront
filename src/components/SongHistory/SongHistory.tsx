@@ -7,6 +7,7 @@ interface SongHistoryProps {
   onDelete: (id: string) => void;
   onClear: () => void;
   onAddToPlaylist?: (item: SongHistoryItem) => void;
+  onDownload?: (item: SongHistoryItem) => void;
   playlistItemIds?: string[];
 }
 
@@ -16,6 +17,7 @@ export function SongHistory({
   onDelete,
   onClear,
   onAddToPlaylist,
+  onDownload,
   playlistItemIds = [],
 }: SongHistoryProps) {
   if (items.length === 0) {
@@ -106,6 +108,24 @@ export function SongHistory({
                             d="M12 4v16m8-8H4" />
                     </svg>
                   )}
+                </button>
+              )}
+
+              {/* Download */}
+              {onDownload && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDownload(item);
+                  }}
+                  className="p-2 rounded-full text-[#b3b3b3] hover:text-white
+                             opacity-0 group-hover:opacity-100 transition-all"
+                  title="다운로드"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
                 </button>
               )}
 
